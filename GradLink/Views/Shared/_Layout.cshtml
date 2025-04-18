@@ -1,0 +1,192 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradLink</title>
+    <link rel="icon" type="image/png" href="~/Content/img/GradLink-Mono(1).jpg">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="~/lib/animate/animate.min.css" rel="stylesheet" />
+    <link href="~/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet" />
+    <link href="~/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <style>
+        .user-image {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    </style>
+   
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0">
+        <a href="/Home/Index" class="navbar-brand d-flex align-items-center px-4 px-lg-5">
+            <h2 class="m-0 text-primary">🎓 GradLink</h2>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto p-4 p-lg-0">
+                <a href="/Home/Index" class="nav-item nav-link active">Home</a>
+                <a href="/Home/About" class="nav-item nav-link">About</a>
+                <a href="/Home/Contact" class="nav-item nav-link">Contact</a>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <li class="nav-item dropdown ms-lg-3">
+                        <a class="nav-link dropdown-toggle align-items-center text-capitalize" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            @User.Identity.Name
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="userDropdown">
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li>
+                                    <a class="dropdown-item" href="/Post">
+                                        <i class="fa fa-user-circle me-2"></i> DashBoard
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider" /></li>
+                            }
+
+                            <li>
+                                <a class="dropdown-item" href="/Account/Profile">
+                                    <i class="fa fa-user-circle me-2"></i> Profile
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <form action="/Account/Logout" method="post" class="px-3">
+                                    <button type="submit" class="btn btn-link dropdown-item text-start p-0">
+                                        <i class="fa fa-sign-out-alt me-2"></i> Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item ms-lg-3">
+                        <a href="/Account/Login" class="btn btn-primary py-4 px-lg-5 d-none d-lg-block">
+                            Log In <i class="fa fa-arrow-right ms-3"></i>
+                        </a>
+                    </li>
+                }
+
+
+            </div>
+        </div>
+    </nav>
+
+    @RenderBody()
+
+    <!-- Footer Start -->
+    <div class="container-fluid bg-dark text-light footer pt-5 mt-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-white mb-3">Quick Link</h4>
+                    <a class="btn btn-link" href="/Home/About">About Us</a>
+                    <a class="btn btn-link" href="/Home/Contact">Contact Us</a>
+                    <a class="btn btn-link">Privacy Policy</a>
+                    <a class="btn btn-link">Terms & Condition</a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-white mb-3">Contact</h4>
+                    <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>London, United Kingdom</p>
+                    <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+44 7738 667530</p>
+                    <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@GradLink.com</p>
+                    <div class="d-flex pt-2">
+                        <a class="btn btn-outline-light btn-social"><i class="fab fa-twitter"></i></a>
+                        <a class="btn btn-outline-light btn-social"><i class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-outline-light btn-social"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h4 class="text-white mb-3">Newsletter</h4>
+                    <p>Sign up to hear from us!</p>
+
+                    @using (Html.BeginForm("Subscribe", "Home", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div class="position-relative mx-auto" style="max-width: 400px;">
+                            <input class="form-control border-0 w-100 py-3 ps-4 pe-5" type="email" name="email" placeholder="Your email" required />
+                            <button type="submit" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2">Sign Up</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="copyright">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                        &copy; GradLink- All Rights Reserved
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/wow/wow.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/noframework.waypoints.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <script src="~/lib/owlcarousel/owl.carousel.min.js"></script>
+    <script src="~/js/main.js"></script>
+    <script src="~/js/Site.js"></script>
+
+    @RenderSection("scripts", required: false)
+
+    <script>
+
+        toastr.options = {
+             "closeButton": true,
+             "debug": false,
+             "newestOnTop": false,
+             "progressBar": true,
+             "positionClass": "toast-top-center",
+             "preventDuplicates": true,
+             "onclick": null,
+             "showDuration": "300",
+             "hideDuration": "1000",
+             "timeOut": "3000",
+             "extendedTimeOut": "1000",
+             "showEasing": "swing",
+             "hideEasing": "linear",
+             "showMethod": "fadeIn",
+             "hideMethod": "fadeOut"
+        };
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>toastr.success('@TempData["SuccessMessage"]');</text>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>toastr.error('@TempData["ErrorMessage"]');</text>
+        }
+
+        @if (TempData["InfoMessage"] != null)
+        {
+            <text>toastr.info('@TempData["InfoMessage"]');</text>
+        }
+
+        @if (TempData["WarningMessage"] != null)
+        {
+            <text>toastr.warning('@TempData["WarningMessage"]');</text>
+        }
+    </script>
+
+
+</body>
+</html>

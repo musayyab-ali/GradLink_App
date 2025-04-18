@@ -1,0 +1,22 @@
+﻿
+@model GradLink.Repository.MSSQL.ORM.Entities.CareerAdvice
+
+
+@using (Html.BeginForm("CareerAdvice", "DashBoard", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Title, new { @class = "form-label" })
+        @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+        @Html.ValidationMessageFor(model => model.Title)
+    </div>
+
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Description, new { @class = "form-label" })
+        @Html.TextAreaFor(model => model.Description, new { @class = "form-control", rows = 4 })
+        @Html.ValidationMessageFor(model => model.Description)
+    </div>
+
+    <button type="submit" class="btn btn-success">Create</button>
+}

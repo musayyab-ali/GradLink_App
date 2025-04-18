@@ -1,0 +1,439 @@
+﻿@using GradLink.Repository.MSSQL.ORM.Entities
+@using Microsoft.AspNetCore.Identity
+@using System.Text.RegularExpressions
+@model List<Post>
+
+@{
+    ViewBag.Title = "Post Feed";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    Func<DateTime?, string> TimeAgo = (date) =>
+    {
+        if (!date.HasValue)
+            return "Unknown";
+
+        var span = DateTime.Now - date.Value;
+        if (span.TotalDays >= 1) return $"{(int)span.TotalDays} day{(span.TotalDays >= 2 ? "s" : "")} ago";
+        if (span.TotalHours >= 1) return $"{(int)span.TotalHours} hour{(span.TotalHours >= 2 ? "s" : "")} ago";
+        if (span.TotalMinutes >= 1) return $"{(int)span.TotalMinutes} minute{(span.TotalMinutes >= 2 ? "s" : "")} ago";
+        return "Just now";
+    };
+
+    string postCreaterName = Regex.Replace(User.Identity.Name, "(?<!^)(?=[A-Z])", " ");
+    string postCreaterInitial = !string.IsNullOrEmpty(postCreaterName) ? (postCreaterName.Contains(" ") ?
+                     postCreaterName.Split(' ')[0][0].ToString().ToUpper() + postCreaterName.Split(' ')[1][0].ToString().ToUpper() : postCreaterName[0].ToString().ToUpper()) : "?";
+}
+
+<div class="mb-4">
+    <div class="welcome-text mb-3">
+        <span id="greeting"></span> <strong>@postCreaterName</strong> Welcome to <strong>GradLink</strong>! <br />
+        <small id="currentDateTime"></small>
+    </div>
+    <div class="p-3 mb-4 bg-white rounded shadow-sm">
+        <div class="d-flex align-items-center" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#createPostModal">
+            <div class="me-3">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #d1c4e9 !important;">
+                    <strong style="background: #d1c4e9 !important;">@postCreaterInitial</strong>
+                </div>
+            </div>
+            <div class="flex-grow-1">
+                <div class="form-control bg-light">What's on your mind?</div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="createPostModal" tabindex="-1" aria-labelledby="createPostModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title" id="createPostModalLabel" style="color: black;">Create a New Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    @using (Html.BeginForm("CreatePost", "Post", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-4">
+                            <label for="textContent" class="form-label">What do you want to share?</label>
+                            <textarea name="textContent" class="form-control" rows="4" placeholder="Share something..." required></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="imageFile" class="form-label">Attach an Image</label>
+                            <input type="file" name="imageFile" class="form-control" />
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-success">Post</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@foreach (var post in Model)
+{
+    string formattName = Regex.Replace(post.User.Username, "(?<!^)(?=[A-Z])", " ");
+    string initial = !string.IsNullOrEmpty(formattName) ? (formattName.Contains(" ") ?
+                     formattName.Split(' ')[0][0].ToString().ToUpper() + formattName.Split(' ')[1][0].ToString().ToUpper() : formattName[0].ToString().ToUpper()) : "?";
+    <div id="post_@post.PostId" class="post-container card mb-3 shadow-lg border-0 rounded job-event">
+        <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center">
+                    <div class="user-icon rounded-circle text-white fw-bold d-flex justify-content-center align-items-center" style="width: 36px; height: 36px;">
+                        @initial
+                    </div>
+                    <div class="ms-2">
+                        <strong>@formattName</strong><br />
+                        <small class="">@TimeAgo(post.CreatedOn)</small>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <div class="position-relative dot-menu-wrapper" onmouseenter="showMenu(@post.PostId)" onmouseleave="hideMenu(@post.PostId)">
+                        <span class="text-secondary" style="font-size: 20px; cursor: pointer;">&#8942;</span>
+                        <div id="hoverMenu_@post.PostId"
+                             class="border rounded px-2 py-1 position-absolute end-0 mt-1 d-none"
+                             style="z-index: 999; background: transparent; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                            <button class="btn btn-sm text-danger d-flex align-items-center gap-1"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#confirmDeleteModal_@post.PostId"
+                                    style="background: none; border: none;">
+                                🗑️ <span>Delete Post</span>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-light p-1" title="Hide Post" onclick="hidePost(@post.PostId)">
+                        <span class="text-dark" style="font-size: 14px;">✕</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                @Html.Raw(HtmlEncoder.Encode(post.TextContent).Replace("\n", "<br />"))
+            </div>
+
+            @if (!string.IsNullOrEmpty(post.ImagePath))
+            {
+                <div class="mb-3">
+                    <img src="@Url.Content(post.ImagePath)" class="img-fluid rounded" style="max-height: 400px; object-fit: cover;" />
+                </div>
+            }
+
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-outline-primary like-btn d-flex align-items-center" data-id="@post.PostId" title="Like/Unlike this post">
+                    <i class="fa fa-thumbs-up me-1"></i>
+                    <span class="like-count-value">@post.Likes.Count</span>
+                </button>
+
+                <button class="btn btn-sm btn-outline-info view-likes-btn d-flex align-items-center" data-id="@post.PostId" data-bs-toggle="modal" data-bs-target="#likeModal_@post.PostId" title="View who liked this post">
+                    <i class="fa fa-users me-1"></i>
+                    <span>View</span>
+                </button>
+
+                <button class="btn btn-sm btn-outline-secondary comment-btn" data-id="@post.PostId" data-bs-toggle="modal" data-bs-target="#addCommentModal_@post.PostId">
+                    💬 Comment (@post.Comments.Count)
+                </button>
+            </div>
+
+            <div class="modal fade" id="likeModal_@post.PostId" tabindex="-1" aria-labelledby="likeModalLabel_@post.PostId" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="likeModalLabel_@post.PostId">Users who liked this post</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body liked-users" data-postid="@post.PostId">
+                            <div class="text-center">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comments mb-3">
+                @foreach (var comment in post.Comments)
+                {
+                    string formatName = Regex.Replace(comment.User.Username, "(?<!^)(?=[A-Z])", " ");
+                    string initials = !string.IsNullOrEmpty(formatName) ? (formatName.Contains(" ") ?
+                    formatName.Split(' ')[0][0].ToString().ToUpper() + formatName.Split(' ')[1][0].ToString().ToUpper() : formatName[0].ToString().ToUpper()) : "?";
+                    <div class="d-flex mb-2 mt-3 align-items-center">
+                        <div class="user-icon-intial rounded-circle text-white d-flex justify-content-center align-items-center me-3" style="width: 35px; height: 35px;">
+                            @initials
+                        </div>
+
+                        <div class="comment-details flex-grow-1">
+                            <div class="d-flex justify-content-start align-items-center">
+                                <strong>@formatName</strong>
+                                <span class="text-muted small ms-2">@TimeAgo(comment.CreatedOn)</span>
+                            </div>
+                            <div class="mt-1 text-truncate" style="max-width: 350px;">
+                                @Html.Raw(HtmlEncoder.Encode(comment.CommentText).Replace("\n", "<br />"))
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="modal fade" id="addCommentModal_@post.PostId" tabindex="-1" aria-labelledby="addCommentModalLabel_@post.PostId" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addCommentModalLabel_@post.PostId">Add Comment</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            @using (Html.BeginForm("AddComment", "Post", FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.Hidden("postId", post.PostId)
+
+                                <div class="mb-3">
+                                    <textarea name="commentText" class="form-control" placeholder="Add a comment..." rows="4" required></textarea>
+                                </div>
+                                <div class="text-end">
+                                    <button type="submit" class="btn btn-success px-4 py-2">Post Comment</button>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="confirmDeleteModal_@post.PostId" tabindex="-1" aria-labelledby="confirmDeleteLabel_@post.PostId" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content shadow-sm">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmDeleteLabel_@post.PostId">Confirm Deletion</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete this post? This action cannot be undone.
+                        </div>
+                        <div class="modal-footer">
+                            @using (Html.BeginForm("DeletePost", "Post", FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.Hidden("postId", post.PostId)
+                                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+                            }
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+@section Scripts {
+    <script>
+
+        $(document).on("click", ".like-btn", function () {
+            const btn = $(this);
+            const postId = btn.data("id");
+
+            $.post('/Post/ToggleLike', { postId: postId }, function (res) {
+                console.log(res);
+
+                if (res.success) {
+                    const likeCount = res.likeCount || 0;
+
+                    btn.html(`👍 Like (${likeCount})`);
+
+                    const toastTitle = res.message.includes("unliked") ? 'Unliked!' : 'Liked!';
+                    const toastMessage = res.message;
+
+                    toastr.success(toastMessage, toastTitle);
+                } else {
+                    toastr.info(res.message, 'Note');
+                }
+            }).fail(function () {
+                toastr.error('Something went wrong. Please try again.', 'Error');
+            });
+        });
+
+
+        // $(document).on("click", ".like-btn", function () {
+        //     const btn = $(this);
+        //     const postId = btn.data("id");
+
+        //     $.post('/Post/ToggleLike', { postId: postId }, function (res) {
+        //         console.log(res);
+
+        //         if (res.success) {
+        //             const likeCount = res.likeCount || 0;
+
+        //             btn.html(`👍 Like (${likeCount})`);
+
+        //             Swal.fire({
+        //                 icon: 'success',
+        //                 title: res.message.includes("unliked") ? 'Unliked!' : 'Liked!',
+        //                 text: res.message,
+        //                 timer: 3000,
+        //                 timerProgressBar: true,
+        //                 showConfirmButton: true,
+        //                 confirmButtonText: 'OK',
+        //                 allowOutsideClick: false,
+        //                 didOpen: () => {
+        //                     const progressBar = Swal.getTimerProgressBar();
+        //                     if (progressBar) {
+        //                         progressBar.style.background = '#28a745';
+        //                     }
+        //                 }
+        //             });
+        //         } else {
+        //             Swal.fire({
+        //                 icon: 'info',
+        //                 title: 'Note',
+        //                 text: res.message,
+        //                 timer: 3000,
+        //                 timerProgressBar: true,
+        //                 showConfirmButton: true,
+        //                 confirmButtonText: 'OK',
+        //                 allowOutsideClick: false
+        //             });
+        //         }
+        //     }).fail(function () {
+        //         Swal.fire({
+        //             icon: 'error',
+        //             title: 'Error',
+        //             text: 'Something went wrong. Please try again.',
+        //             confirmButtonColor: '#d33',
+        //             showConfirmButton: true
+        //         });
+        //     });
+        // });
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".hide-post-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const postId = this.getAttribute("data-id");
+                    const postCard = this.closest(".post-container");
+                    if (postCard) {
+                        postCard.style.display = "none";
+                    }
+                });
+            });
+        });
+
+        let hideTimeouts = {};
+
+        function showMenu(postId) {
+            clearTimeout(hideTimeouts[postId]);
+            document.getElementById("hoverMenu_" + postId).classList.remove("d-none");
+        }
+
+        function hideMenu(postId) {
+            hideTimeouts[postId] = setTimeout(() => {
+                document.getElementById("hoverMenu_" + postId).classList.add("d-none");
+            }, 200);
+        }
+
+        function cancelHideMenu(postId) {
+            clearTimeout(hideTimeouts[postId]);
+        }
+
+        function hidePost(postId) {
+            const post = document.getElementById("post_" + postId);
+            if (post) {
+                post.style.transition = "opacity 0.3s ease";
+                post.style.opacity = "0";
+                setTimeout(() => post.style.display = "none", 300);
+            }
+        }
+
+        $(document).on("click", ".view-likes-btn", function () {
+            const postId = $(this).data("id");
+            const modalBody = $(`#likeModal_${postId} .liked-users`);
+
+            // Skeleton loader for better UX
+            modalBody.html(`
+                <div class="d-flex justify-content-center align-items-center" style="min-height: 100px;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            `);
+
+            $.get('/Post/GetLikedUsers', { postId }, function (data) {
+                if (!data || data.length === 0) {
+                    modalBody.html(`
+                        <div class="text-muted text-center py-3">
+                            <i class="fa fa-info-circle me-2"></i>No one has liked this post yet.
+                        </div>
+                    `);
+                    return;
+                }
+
+                // Animate the list items for smooth loading
+                const userList = data.map(user => `
+                    <li class="list-group-item d-flex align-items-center">
+                        <div class="avatar-circle me-3">
+                            <i class="fa fa-user text-white"></i>
+                        </div>
+                        <div>
+                            <strong>${user.Username}</strong><br />
+                            <small class="text-muted">${user.Email}</small>
+                        </div>
+                    </li>
+                `).join('');
+
+                modalBody.html(`
+                    <ul class="list-group list-group-flush animate__animated animate__fadeIn">
+                        ${userList}
+                    </ul>
+                `);
+            }).fail(() => {
+                modalBody.html(`
+                    <div class="text-danger text-center py-3">
+                        <i class="fa fa-exclamation-circle me-2"></i>Failed to load liked users. Please try again.
+                    </div>
+                `);
+            });
+        });
+
+        function updateGreetingAndTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            let greeting = "";
+
+            if (hours < 12) {
+                greeting = "Good Morning,";
+            } else if (hours < 18) {
+                greeting = "Good Afternoon,";
+            } else {
+                greeting = "Good Evening,";
+            }
+
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
+            };
+
+            document.getElementById("greeting").textContent = greeting;
+            document.getElementById("currentDateTime").textContent = now.toLocaleString("en-US", options);
+        }
+
+        // Initial call
+        updateGreetingAndTime();
+
+        // Update every second
+        setInterval(updateGreetingAndTime, 1000);
+
+    </script>
+}

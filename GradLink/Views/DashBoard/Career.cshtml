@@ -1,0 +1,50 @@
+﻿@model IEnumerable<GradLink.Repository.MSSQL.ORM.Entities.CareerAdvice>
+@{
+    ViewBag.Title = "Career";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-end mb-3">
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#careerAdviceModal">
+        <i class="bi bi-calendar-plus me-1"></i> Create Advice
+    </button>
+</div>
+
+<div class="container mt-4" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 20px; padding: 20px;">
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info p-4 text-center" role="alert">
+            <h5 class="mb-2">No advice available yet.</h5>
+            <p>Be the first to share your experience!</p>
+        </div>
+    }
+    else
+    {
+        foreach (var item in Model)
+        {
+
+            <div class="advice-section">
+                <div class="advice-title">@item.Title</div>
+                <p class="small text-secondary">Posted on @item.CreatedDate.ToString("MMMM dd, yyyy")</p>
+                <div class="advice-description">
+                    @item.Description
+                </div>
+            </div>
+        }
+    }
+
+</div>
+
+<div class="modal fade" id="careerAdviceModal" tabindex="-1" aria-labelledby="careerAdviceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content rounded-4 shadow-sm">
+            <div class="modal-header" style="color:#000;">
+                <h5 class="modal-title fw-semibold" id="careerAdviceModalLabel">Create Career Advice</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("_careerAdviceFrom", new GradLink.Repository.MSSQL.ORM.Entities.CareerAdvice())
+            </div>
+        </div>
+    </div>
+</div>

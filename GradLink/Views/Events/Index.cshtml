@@ -1,0 +1,52 @@
+﻿@model IEnumerable<GradLink.Repository.MSSQL.ORM.Entities.Event>
+
+@{
+    ViewBag.Title = "Events";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@if (User.IsInRole("Admin"))
+{
+    <div class="d-flex justify-content-end mb-3">
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createEventModal">
+            <i class="bi bi-calendar-plus me-1"></i> Create New Event
+        </button>
+    </div>
+}
+<div class="container mt-3" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 20px; padding: 20px;">
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" width="80" class="mb-3" alt="No events" />
+            <h4 class="text-muted">No events found</h4>
+            <p class="text-secondary">Click "Create New Event" to get started.</p>
+        </div>
+    }
+    else
+    {
+        foreach (var item in Model)
+        {
+            <div class="event border-bottom py-3">
+                <h5 class="event-title fw-bold">@item.Title</h5>
+                <div class="event-date mb-1">📅 @item.EventDate.ToString("MMMM d, yyyy")</div>
+                <div class="event-location mb-1">📍 @item.Location</div>
+                <div class="event-description">@item.Description</div>
+            </div>
+        }
+    }
+</div>
+
+<!-- Modal for Create Event -->
+<div class="modal fade" id="createEventModal" tabindex="-1" aria-labelledby="createEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content rounded-4 shadow-sm">
+            <div class="modal-header">
+                <h5 class="modal-title fw-semibold" id="createEventModalLabel">Create New Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @Html.Partial("_eventCreateFrom", new GradLink.Repository.MSSQL.ORM.Entities.Event())
+            </div>
+        </div>
+    </div>
+</div>

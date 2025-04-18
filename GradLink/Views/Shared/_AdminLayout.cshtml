@@ -1,0 +1,203 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradLink</title>
+    <link rel="icon" type="image/png" href="~/img/GradLink-Mono(1).jpg">
+    <link href="~/css/styles.css" rel="stylesheet" asp-append-version="true" />
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+   
+</head>
+
+<body>
+
+    <div class="top-bar">
+        <div class="logo">
+            <a href="/Home/Index" class="logo-link">🎓 GradLink</a>
+        </div>
+
+        <div class="search-container">
+            <input type="text" class="search-bar" placeholder="Search...">
+        </div>
+
+        <div class="top-bar-icons">
+            <a href="/dashboard/qna" title="Go to Q&A Dashboard" data-bs-toggle="tooltip"
+                style="text-decoration: none;">
+                <span class="icon" style="cursor: pointer; font-size: 1.2rem;">❓</span>
+            </a>
+
+            <div class="mail-container">
+                <span class="icon" id="mailIcon" title="Messages" style="cursor: pointer;">
+                    <i class="fas fa-envelope"></i>
+                    <span class="badge-count" id="mailCount">3</span>
+                </span>
+                <div class="mail-dropdown">
+                    <div class="dropdown-card">
+                        <div class="dropdown-item"><i class="fas fa-envelope"></i> You have a new message from
+                            <strong>John Doe</strong></div>
+                        <div class="dropdown-item"><i class="fas fa-envelope"></i> Reminder: Meeting with Alex at 3 PM
+                        </div>
+                        <div class="dropdown-item"><i class="fas fa-envelope"></i> Your order has been shipped!</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bell-container">
+                <span class="icon" id="notificationBell" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge-count" id="notificationCount">5</span>
+                </span>
+                <div class="bell-dropdown">
+                    <div class="dropdown-card">
+                        <div class="dropdown-item">🔗 New Connection Request from <strong>Ammar</strong></div>
+                        <div class="dropdown-item">👍 Mani Liked Your Post</div>
+                        <div class="dropdown-item">🔁 Harry Reposted Your Post</div>
+                        <div class="dropdown-item">💬 Sarah Commented on Your Post</div>
+                        <div class="dropdown-item">🎉 Congratulations! You've reached 100 followers</div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="darkModeToggle" class="dark-mode-btn" title="Toggle Dark Mode">🌙</button>
+
+            <div class="user-menu">
+                <span class="user-info">
+                    <span class="user-name" id="userName">@User.Identity.Name</span>
+                </span>
+
+                <div class="dropdown-menu" id="userDropdown">
+                    <div class="dropdown-item">
+                        <a href="/Account/Profile">👤 View Profile</a>
+                    </div>
+                    <div class="dropdown-item">
+                        <a href="/Account/Logout">🚪 Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="icon">🚀</div>
+            <span class="title">Dashboard</span>
+        </div>
+        <nav class="menu">
+            <a href="/Post" class="menu-item" id="home-link"><span class="emoji">🏠</span>Home</a>
+            <a href="/Dashboard/Members" class="menu-item" id="members-link"><span class="emoji">👥</span>Members</a>
+            <a href="/Events" class="menu-item" id="events-link"><span class="emoji">📅</span>Community Events</a>
+            <div class="menu-section">Community</div>
+            <a href="/Dashboard/Announcements" class="menu-item" id="announcements-link"><span
+                    class="emoji">📢</span>Announcements</a>
+            <a href="/Dashboard/QNA" class="menu-item" id="qna-link"><span class="emoji">❓</span>Q & A</a>
+            <a href="/Dashboard/Resources" class="menu-item" id="resources-link"><span
+                    class="emoji">📚</span>Resources</a>
+            <div class="menu-section">Alumni</div>
+            <a href="/Dashboard/Career" class="menu-item" id="career-link"><span class="emoji">💼</span>Career
+                Advice</a>
+            <a href="/Job" class="menu-item" id="job-link"><span class="emoji">📋</span>Job Board</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        @RenderBody()
+
+        <div id="postModal" class="modal">
+            <div class="modal-content">
+                <span id="closeModal" class="close">&times;</span>
+                <h3>Create a Post</h3>
+                <textarea id="postTextArea" placeholder="Write something..." rows="4"></textarea>
+                <div class="upload-section">
+                    <input type="file" id="fileUpload" accept="image/*,video/*,audio/*">
+                    <button id="uploadBtn">Upload</button>
+                </div>
+                <button id="postButton">Post</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @* <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> *@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script src="~/js/Site.js"></script>
+    @RenderSection("scripts", required: false)
+
+    <script>
+
+        flatpickr("#eventDate", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            minDate: "today",
+            time_24hr: true
+        });
+
+        $(document).ready(function () {
+            var currentUrl = window.location.pathname;
+            $(".menu-item").each(function () {
+                var link = $(this);
+                if (currentUrl.indexOf(link.attr("href")) !== -1) {
+                    link.addClass("active");
+                } else {
+                    link.removeClass("active");
+                }
+            });
+            $(".menu-item").on("click", function () {
+                $(".menu-item").removeClass("active");
+                $(this).addClass("active");
+            });
+        });
+
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": false,
+            "progressBar": true,
+            "positionClass": "toast-top-center",
+            "preventDuplicates": true,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "3000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>toastr.success('@TempData["SuccessMessage"]');</text>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>toastr.error('@TempData["ErrorMessage"]');</text>
+        }
+
+        @if (TempData["InfoMessage"] != null)
+        {
+            <text>toastr.info('@TempData["InfoMessage"]');</text>
+        }
+
+        @if (TempData["WarningMessage"] != null)
+        {
+            <text>toastr.warning('@TempData["WarningMessage"]');</text>
+        }
+
+    </script>
+</body>
+
+</html>

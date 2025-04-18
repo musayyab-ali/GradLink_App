@@ -1,0 +1,174 @@
+﻿@model GradLink.Model.ViewModel.Job.JobApplicationViewModel
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var appliedJobs = ViewBag.AppliedJobs as List<int>;
+}
+
+<style>
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold"></h2>
+    @if (User.IsInRole("Admin"))
+    {
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#postJobModal">
+            <i class="bi bi-plus-circle me-1"></i> Post a Job
+        </button>
+    }
+</div>
+
+<div class="container mt-4" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 20px; padding: 20px;">
+    @foreach (var job in Model.JobPosts)
+    {
+        var applicantCount = job.JobApplications?.Count() ?? 0;
+
+        <div class="job-post">
+            <div class="job-title">@job.Title</div>
+            <div class="job-meta">Company: @job.Company | Location: @job.Location | Posted: @job.PostedDate</div>
+            <div class="job-description">
+                @job.Description
+            </div>
+
+            @if (Model.AppliedJobIds.Contains(job.JobId))
+            {
+                <div class="applied-badge shadow-sm" data-bs-toggle="tooltip" data-bs-placement="top"
+                     title="You've already applied for this job. Total applicants: @applicantCount">
+                    <i class="bi bi-check-circle-fill text-success me-2 fs-5"></i>
+                    <span>
+                        @if (applicantCount == 1)
+                        {
+                            <text>You have confidently taken the first step. Great move!</text>
+                        }
+                        else
+                        {
+                            <text>You and <strong>@(applicantCount - 1)</strong> others have shown interest in this role.</text>
+                        }
+                    </span>
+                </div>
+            }
+            else if (applicantCount > 0)
+            {
+                <div class="applied-badge shadow-sm text-muted" data-bs-toggle="tooltip" data-bs-placement="top"
+                     title="Applicants so far: @applicantCount">
+                    <i class="bi bi-people-fill me-2 fs-5"></i>
+                    <span>
+                        Join <strong>@applicantCount</strong> professionals who’ve already applied.
+                    </span>
+                </div>
+            }
+            else
+            {
+                <button class="apply-btn apply-link" data-jobid="@job.JobId" data-title="@job.Title" data-toemail="@job.ToEmail">Apply Now</button>
+            }
+
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="applyJobModal" tabindex="-1" aria-labelledby="applyJobModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="applyJobModalLabel" style="color: black;">Apply for <span id="modalJobTitle" class="text-primary fw-semibold"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                @using (Html.BeginForm("ApplyJob", "Job", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.Hidden("jobId", "", new { id = "modalJobId" })
+                    <div class="mb-3">
+                        <label>Send CV To</label>
+                        <input type="email" id="modalToEmail" name="toEmail" class="form-control" readonly />
+                    </div>
+                    <div class="mb-3">
+                        <label>Upload CV (PDF)</label>
+                        <input type="file" name="resumeFile" class="form-control" required />
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-success">Submit Application</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="postJobModal" tabindex="-1" aria-labelledby="postJobModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="postJobModalLabel" style="color: black;">Post a New Job</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                @using (Html.BeginForm("Create", "Job", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        @Html.Label("Title")
+                        @Html.TextBox("Title", null, new { @class = "form-control", required = "required" })
+                    </div>
+
+                    <div class="mb-3">
+                        @Html.Label("Company")
+                        @Html.TextBox("Company", null, new { @class = "form-control", required = "required" })
+                    </div>
+
+                    <div class="mb-3">
+                        @Html.Label("Location")
+                        @Html.TextBox("Location", null, new { @class = "form-control", required = "required" })
+                    </div>
+
+                    <div class="mb-3">
+                        @Html.Label("Description")
+                        @Html.TextArea("Description", null, new { @class = "form-control", rows = 4, required = "required" })
+                    </div>
+
+                    <div class="mb-3">
+                        @Html.Label("Contact Email")
+                        @Html.TextBox("ToEmail", null, new { @class = "form-control", type = "email", required = "required" })
+                    </div>
+
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">Post Job</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section scripts {
+
+    <script>
+        $(document).ready(function () {
+            $('.apply-btn').click(function () {
+                var jobId = $(this).data('jobid');
+                var title = $(this).data('title');
+                var toEmail = $(this).data('toemail');
+
+
+                $('#modalJobTitle').text(title);
+                $('#modalJobId').val(jobId);
+                $('#modalToEmail').val(toEmail);
+
+                var modal = new bootstrap.Modal(document.getElementById('applyJobModal'));
+                modal.show();
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+}

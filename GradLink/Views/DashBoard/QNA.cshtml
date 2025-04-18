@@ -1,0 +1,108 @@
+﻿@model IEnumerable<GradLink.Model.ViewModel.QuestionAnswer.QuestionViewModel>
+@using System.Text.RegularExpressions
+
+@{
+    ViewBag.Title = "QNA";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    /* Inline styles specific to Q & A page.
+               You can move these into styles.css if you prefer. */
+
+
+</style>
+
+<div class="container mt-4" style="box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); border-radius: 20px;  padding: 20px; ">
+    <div class="card custom-card mb-4">
+        <div class="card-header custom-card-header">
+            <h4 class="mb-0">Ask a Question</h4>
+        </div>
+        <div class="card-body custom-card-body">
+            @using (Html.BeginForm("Ask", "DashBoard", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                <div class="form-group mb-3">
+                    @Html.TextArea("QuestionText", null, new { @class = "form-control", placeholder = "Type your question here...", rows = 3, required = "required" })
+                </div>
+                <button type="submit" class="btn btn-success">Submit</button>
+            }
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        foreach (var q in Model)
+        {
+            string formattName = Regex.Replace(q.UserName, "(?<!^)(?=[A-Z])", " ");
+            <div class="question-block">
+                <div class="question-header">Question by  @formattName</div>
+                <div class="question-meta">Posted on @q.CreatedOn.ToString("MMMM dd, yyyy")</div>
+                <div class="question-text">
+                    @q.QuestionText
+                </div>
+
+                <div class="answers">
+                    @if (q.Answers != null && q.Answers.Any())
+                    {
+                        foreach (var a in q.Answers)
+                        {
+                            string formattedName = Regex.Replace(a.AnsweredBy, "(?<!^)(?=[A-Z])", " ");
+
+                            // Get initials (either first initial or first and second if multiple words)
+                            string initials = !string.IsNullOrEmpty(formattedName) ?
+                            (formattedName.Contains(" ") ?
+                            formattedName.Split(' ')[0][0].ToString().ToUpper() + formattedName.Split(' ')[1][0].ToString().ToUpper() :
+                            formattedName[0].ToString().ToUpper()) : "?";
+
+                            <div class="answer-block">
+                                @*<div class="answer-meta">Answer by @a.AnsweredBy - @a.CreatedOn.ToString("MMMM dd, yyyy")</div>*@
+                                <div class="answer-meta">
+                                    <span class="initials">@initials</span>
+                                    <span class="full-name">Answer by @formattedName</span> - @a.CreatedOn.ToString("MMMM dd, yyyy")
+                                </div>
+                                <div class="answer-text">
+                                    @a.AnswerText
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning mt-2">No answers yet.</div>
+                    }
+                </div>
+
+                <!-- Add Answer Button, triggers the modal -->
+                <button type="button" class="btn btn-outline-primary btn-sm mt-3" data-bs-toggle="modal" data-bs-target="#addAnswerModal_@q.Id">Add Answer</button>
+            </div>
+
+            <div id="addAnswerModal_@q.Id" class="modal fade fadeInLeft" tabindex="-1" aria-labelledby="addAnswerModalLabel_@q.Id" aria-hidden="true" style="display: none;">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addAnswerModalLabel_@q.Id">Add Answer</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="@Url.Action("Answer", "DashBoard")" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="QuestionId" value="@q.Id" />
+                                <div class="mb-3">
+                                    <label for="answerText_@q.Id" class="form-label">Your Answer</label>
+                                    <textarea class="form-control" id="answerText_@q.Id" name="AnswerText" rows="4" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success">Post Answer</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">No questions have been posted yet.</div>
+    }
+</div>
+

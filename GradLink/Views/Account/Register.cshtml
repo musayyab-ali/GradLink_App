@@ -1,0 +1,221 @@
+﻿@{
+    ViewBag.Title = "Register";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .valid {
+        color: green;
+    }
+
+    .invalid {
+        color: red;
+    }
+
+    #passwordRequirements li {
+        font-size: 0.875rem;
+        margin-bottom: 5px;
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>
+
+
+
+<div class="container mt-5">
+    <div class="login-form p-4 rounded mx-auto" style="max-width: 500px; box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;">
+        <h3 class="text-center text-primary">Login</h3>
+        <form method="post" action="@Url.Action("Register", "Account")">
+            <div class="mb-3">
+                <label for="UserName" class="form-label">Username</label>
+                <input type="text" class="form-control" id="UserName" name="UserName" placeholder="Enter your username" required>
+            </div>
+            <div class="mb-3">
+                <label for="Email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="Email" name="Email" placeholder="Enter your email" required>
+            </div>
+            <div class="mb-3">
+                <label for="Password" class="form-label">Password</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="Password" name="Password" placeholder="Enter your password" required>
+                    <span class="input-group-text" id="togglePassword">
+                        <i class="fa fa-eye"></i>
+                    </span>
+                </div>
+                <ul id="passwordRequirements" class="hidden">
+                    <li id="lengthRequirement" class="invalid">Password must be at least 6 characters long.</li>
+                    <li id="uppercaseRequirement" class="invalid">Password must contain at least one uppercase letter.</li>
+                    <li id="lowercaseRequirement" class="invalid">Password must contain at least one lowercase letter.</li>
+                    <li id="numberRequirement" class="invalid">Password must contain at least one number.</li>
+                </ul>
+            </div>
+
+            <div class="mb-3">
+                <label for="ConfirmPassword" class="form-label">Confirm Password</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword" placeholder="Confirm your password" required>
+                    <span class="input-group-text" id="toggleConfirmPassword">
+                        <i class="fa fa-eye"></i>
+                    </span>
+                </div>
+                <div id="confirmPasswordHelp" class="d-none text-danger">Passwords do not match.</div>
+            </div>
+
+            @*<div class="mb-3">
+            <label for="Password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="Password" name="Password" placeholder="Enter your password" required>
+            <ul id="passwordRequirements" class="mt-2 hidden">
+                <li id="lengthRequirement" class="text-danger">Password must be at least 6 characters long.</li>
+                <li id="uppercaseRequirement" class="text-danger">Password must contain at least one uppercase letter.</li>
+                <li id="lowercaseRequirement" class="text-danger">Password must contain at least one lowercase letter.</li>
+                <li id="numberRequirement" class="text-danger">Password must contain at least one number.</li>
+            </ul>
+        </div>
+        <div class="mb-3">
+            <label for="ConfirmPassword" class="form-label">Confirm Password</label>
+            <input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword" placeholder="Confirm your password" required>
+            <small id="confirmPasswordHelp" class="text-danger d-none"></small>
+
+        </div>*@
+            <button type="submit" class="btn btn-primary w-100">Register</button>
+        </form>
+        <div class="mt-3 text-center">
+            <p>Already have an account? <a href="/Account/Login" class="sign-up-text">Log In</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    //document.addEventListener('DOMContentLoaded', function () {
+    //    const passwordInput = document.getElementById('Password');
+    //    const confirmPasswordInput = document.getElementById('ConfirmPassword');
+    //    const passwordRequirements = document.getElementById('passwordRequirements');
+    //    const confirmPasswordHelp = document.getElementById('confirmPasswordHelp');
+
+    //    const lengthRequirement = document.getElementById('lengthRequirement');
+    //    const uppercaseRequirement = document.getElementById('uppercaseRequirement');
+    //    const lowercaseRequirement = document.getElementById('lowercaseRequirement');
+    //    const numberRequirement = document.getElementById('numberRequirement');
+
+    //    // Function to check password strength
+    //    function validatePasswordStrength(password) {
+    //        const hasUppercase = /[A-Z]/.test(password);
+    //        const hasLowercase = /[a-z]/.test(password);
+    //        const hasNumber = /\d/.test(password);
+    //        const isLongEnough = password.length >= 6;
+
+    //        return {
+    //            hasUppercase,
+    //            hasLowercase,
+    //            hasNumber,
+    //            isLongEnough
+    //        };
+    //    }
+
+    //    // Function to update the list and hide items when they are met
+    //    function updateRequirements(password) {
+    //        const strength = validatePasswordStrength(password);
+
+    //        // Password criteria feedback
+    //        if (strength.isLongEnough) {
+    //            lengthRequirement.classList.add('valid');
+    //            lengthRequirement.classList.remove('invalid');
+    //            lengthRequirement.classList.add('hidden');
+    //        } else {
+    //            lengthRequirement.classList.add('invalid');
+    //            lengthRequirement.classList.remove('valid');
+    //            lengthRequirement.classList.remove('hidden');
+    //        }
+
+    //        if (strength.hasUppercase) {
+    //            uppercaseRequirement.classList.add('valid');
+    //            uppercaseRequirement.classList.remove('invalid');
+    //            uppercaseRequirement.classList.add('hidden');
+    //        } else {
+    //            uppercaseRequirement.classList.add('invalid');
+    //            uppercaseRequirement.classList.remove('valid');
+    //            uppercaseRequirement.classList.remove('hidden');
+    //        }
+
+    //        if (strength.hasLowercase) {
+    //            lowercaseRequirement.classList.add('valid');
+    //            lowercaseRequirement.classList.remove('invalid');
+    //            lowercaseRequirement.classList.add('hidden');
+    //        } else {
+    //            lowercaseRequirement.classList.add('invalid');
+    //            lowercaseRequirement.classList.remove('valid');
+    //            lowercaseRequirement.classList.remove('hidden');
+    //        }
+
+    //        if (strength.hasNumber) {
+    //            numberRequirement.classList.add('valid');
+    //            numberRequirement.classList.remove('invalid');
+    //            numberRequirement.classList.add('hidden');
+    //        } else {
+    //            numberRequirement.classList.add('invalid');
+    //            numberRequirement.classList.remove('valid');
+    //            numberRequirement.classList.remove('hidden');
+    //        }
+    //    }
+
+    //    // Function to validate confirm password
+    //    function validateConfirmPassword() {
+    //        const password = passwordInput.value;
+    //        const confirmPassword = confirmPasswordInput.value;
+
+    //        if (confirmPassword && password !== confirmPassword) {
+    //            confirmPasswordHelp.textContent = "Passwords do not match.";
+    //            confirmPasswordHelp.classList.remove('d-none');
+    //            confirmPasswordInput.classList.add('invalid');
+    //            confirmPasswordInput.classList.remove('valid');
+    //        } else {
+    //            confirmPasswordHelp.classList.add('d-none');
+    //            confirmPasswordInput.classList.add('valid');
+    //            confirmPasswordInput.classList.remove('invalid');
+    //        }
+    //    }
+
+    //    // Event listener for password input focus
+    //    passwordInput.addEventListener('focus', function () {
+    //        passwordRequirements.classList.remove('hidden'); // Show requirements when focused
+    //    });
+
+    //    // Event listener for password input blur (when focus is lost)
+    //    passwordInput.addEventListener('blur', function () {
+    //        if (!passwordInput.value) {
+    //            passwordRequirements.classList.add('hidden'); // Hide requirements when input is empty
+    //        }
+    //    });
+
+    //    // Event listener for password input change
+    //    passwordInput.addEventListener('input', function () {
+    //        updateRequirements(passwordInput.value);
+    //    });
+
+    //    // Event listener for confirm password input change
+    //    confirmPasswordInput.addEventListener('input', validateConfirmPassword);
+
+    //    // Toggle password visibility for the Password field
+    //    togglePassword.addEventListener('click', function () {
+    //        const type = passwordInput.type === 'password' ? 'text' : 'password';
+    //        passwordInput.type = type;
+
+    //        // Change the icon based on the password visibility state
+    //        togglePassword.querySelector('i').classList.toggle('fa-eye');
+    //        togglePassword.querySelector('i').classList.toggle('fa-eye-slash');
+    //    });
+
+    //    // Toggle password visibility for the Confirm Password field
+    //    toggleConfirmPassword.addEventListener('click', function () {
+    //        const type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
+    //        confirmPasswordInput.type = type;
+
+    //        // Change the icon based on the password visibility state
+    //        toggleConfirmPassword.querySelector('i').classList.toggle('fa-eye');
+    //        toggleConfirmPassword.querySelector('i').classList.toggle('fa-eye-slash');
+    //    });
+    //});
+</script>
+

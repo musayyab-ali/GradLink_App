@@ -1,0 +1,35 @@
+﻿@model GradLink.Repository.MSSQL.ORM.Entities.Event
+
+
+
+@using (Html.BeginForm("Create", "Events", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Title, new { @class = "form-label" })
+        @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+        @Html.ValidationMessageFor(model => model.Title)
+    </div>
+
+    <div class="mb-3">
+        @Html.LabelFor(model => model.EventDate, new { @class = "form-label" })
+        @Html.TextBoxFor(model => model.EventDate, new { @class = "form-control", @id = "eventDate", @autocomplete = "off" })
+        @Html.ValidationMessageFor(model => model.EventDate)
+    </div>
+
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Location, new { @class = "form-label" })
+        @Html.EditorFor(model => model.Location, new { htmlAttributes = new { @class = "form-control" } })
+        @Html.ValidationMessageFor(model => model.Location)
+    </div>
+
+    <div class="mb-3">
+        @Html.LabelFor(model => model.Description, new { @class = "form-label" })
+        @Html.TextAreaFor(model => model.Description, new { @class = "form-control", rows = 4 })
+        @Html.ValidationMessageFor(model => model.Description)
+    </div>
+
+    <button type="submit" class="btn btn-success">Create</button>
+}
+

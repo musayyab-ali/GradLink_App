@@ -1,0 +1,125 @@
+﻿@model GradLink.Model.ViewModel.Account.UserProfileViewModel
+
+@{
+    ViewBag.Title = "My Profile";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .profile-card {
+        border: none !important;
+        border-radius: 20px !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05) !important;
+        background: #fff !important;
+        padding: 40px 30px !important;
+        transition: all 0.3s ease !important;
+    }
+
+    .profile-img-wrapper {
+        position: relative;
+        width: 160px;
+        height: 160px;
+        margin: 0 auto 20px auto;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid #06bbcc;
+        box-shadow: 0 6px 15px rgba(13, 110, 253, 0.2);
+        cursor: pointer;
+        transition: transform 0.3s ease-in-out;
+    }
+
+        .profile-img-wrapper:hover {
+            transform: scale(1.03);
+        }
+
+        .profile-img-wrapper img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+        }
+
+    .upload-overlay {
+        position: absolute;
+        bottom: 0px;
+        width: 100%;
+        background: #06bbcc;
+        color: #fff;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 11px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    input[type="file"] {
+        display: none !important;
+    }
+</style>
+
+<div class="container mt-5 mb-5">
+    <h2 class="text-center fw-bold text-primary mb-4">👤 My Profile</h2>
+
+    @using (Html.BeginForm("Profile", "Account", FormMethod.Post, new { enctype = "multipart/form-data", @class = "profile-card" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="row g-4 align-items-center">
+            <div class="col-md-4 text-center border-end">
+                @*<label for="ProfileImage">
+                    <div class="profile-img-wrapper">
+                        <img src="@(!string.IsNullOrEmpty(Model.ExistingProfileImagePath) ? Url.Content(Model.ExistingProfileImagePath) : Url.Content("~/Content/Uploads/Profiles/noImage.png"))" id="previewImage" />
+                        <div class="upload-overlay">Click to Change</div>
+                    </div>
+                </label>
+                <input type="file" name="ProfileImage" id="ProfileImage" onchange="previewProfileImage(this)" />*@
+            </div>
+
+            <div class="col-md-8">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.UserName, htmlAttributes: new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.UserName, new { @class = "form-control form-control-lg" })
+                        @Html.ValidationMessageFor(m => m.UserName, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.Email, htmlAttributes: new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Email, new { @class = "form-control form-control-lg", @readonly = "readonly" })
+                    </div>
+
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.Phone, htmlAttributes: new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Phone, new { @class = "form-control form-control-lg" })
+                        @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-md-12">
+                        @Html.LabelFor(m => m.Address, htmlAttributes: new { @class = "form-label" })
+                        @Html.TextAreaFor(m => m.Address, new { @class = "form-control form-control-lg", rows = 3 })
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg btn-submit">
+                        <i class="fa fa-save me-2"></i> Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function previewProfileImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('previewImage').setAttribute('src', e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}
+
