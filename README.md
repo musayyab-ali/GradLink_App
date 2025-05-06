@@ -58,4 +58,4 @@ Frontend	ASP.NET Core MVC 8, Razor Views, Bootstrap 5, jQuer
 Backend	ASP.NET Core MVC 8, Entity Framework Core
 Database	Microsoft SQL Server
 Authentication	ASP.NET Identity with JWT or Cookie-based auth
-Optional APIs	LinkedIn API (import resume), Email API (e.g., SendGrid)
+Optional APIs	LinkedIn API (import resume), Email API (e.g., SendGrid) 
