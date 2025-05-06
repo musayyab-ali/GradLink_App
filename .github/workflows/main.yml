@@ -18,7 +18,7 @@ jobs:
 
       - name: Login to Docker Hub
         run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ vars.DOCKERHUB_USERNAME }} --password-stdin
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -38,6 +38,11 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           password: ${{ secrets.REMOTE_PASS }}
           script: |
+            echo "IMAGE_TAG is ${IMAGE_TAG}"  # Debugging the IMAGE_TAG value
+            if [ -z "$IMAGE_TAG" ]; then
+              echo "Error: IMAGE_TAG is empty or not set.";
+              exit 1;
+            fi
             docker pull hassanb111/gradlink:${IMAGE_TAG}
             docker stop gradlink || true
             docker rm gradlink || true
