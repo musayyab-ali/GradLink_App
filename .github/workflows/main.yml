@@ -47,3 +47,5 @@ jobs:
             docker stop gradlink || true
             docker rm gradlink || true
             docker run -d --name gradlink -p 5000:8080 hassanb111/gradlink:${IMAGE_TAG}
+        env:
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}  # Explicitly pass IMAGE_TAG to the SSH step
