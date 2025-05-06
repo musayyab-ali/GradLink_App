@@ -54,7 +54,7 @@ Admin panel to manage users, jobs, posts, and reports.
 🛠️ Tech Stack
 
 Layer	Technology
-Frontend	ASP.NET Core MVC 8, Razor Views, Bootstrap 5, jQuery
+Frontend	ASP.NET Core MVC 8, Razor Views, Bootstrap 5, jQuer
 Backend	ASP.NET Core MVC 8, Entity Framework Core
 Database	Microsoft SQL Server
 Authentication	ASP.NET Identity with JWT or Cookie-based auth
