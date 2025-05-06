@@ -1,4 +1,4 @@
-name: ci
+name: ci-cd
 
 on:
   push:
@@ -6,8 +6,9 @@ on:
       - master
 
 jobs:
-  docker:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -30,11 +31,14 @@ jobs:
           docker build -t hassanb111/gradlink:${IMAGE_TAG} .
           docker push hassanb111/gradlink:${IMAGE_TAG}
 
-      - name: Save tag for CD
-        run: echo "${IMAGE_TAG}" > image-tag.txt
-
-      - name: Upload tag artifact
-        uses: actions/upload-artifact@v4
+      - name: SSH and deploy to server
+        uses: appleboy/ssh-action@v1.0.0
         with:
-          name: image-tag
-          path: image-tag.txt
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          password: ${{ secrets.REMOTE_PASS }}
+          script: |
+            docker pull hassanb111/gradlink:${IMAGE_TAG}
+            docker stop gradlink || true
+            docker rm gradlink || true
+            docker run -d --name gradlink -p 5000:8080 hassanb111/gradlink:${IMAGE_TAG}
