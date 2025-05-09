@@ -1,4 +1,4 @@
-aA🎯 Key Features
+🎯 Key Features
 
 📝 Post Creation and Engagement
 Users can create public or private posts (text, images, videos).
