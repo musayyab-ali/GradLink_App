@@ -34,7 +34,7 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           password: ${{ secrets.REMOTE_PASS }}
           script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/gradlink:latest
+            docker pull musayyabali/gradlink:latest
             docker stop gradlink || true
             docker rm gradlink || true
-            docker run -d --name gradlink -p 5000:8080 ${{ secrets.DOCKERHUB_USERNAME }}/gradlink:latest
+            docker run -d --name gradlink -p 5000:8080 musayyabali/gradlink:latest
