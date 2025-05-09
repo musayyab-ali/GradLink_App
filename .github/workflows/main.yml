@@ -24,8 +24,8 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/gradlink:latest .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/gradlink:latest
+          docker build -t musayyabali/gradlink:latest .
+          docker push musayyabali/gradlink:latest
 
       - name: SSH and deploy to server
         uses: appleboy/ssh-action@v1.0.0
